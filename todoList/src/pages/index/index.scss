@@ -1,0 +1,24 @@
+.text-type{
+    height:20px;
+    width:300px;
+    margin-top:40px;
+    border: 2px solid #CDCDCD;
+}
+.Box{
+    margin-left:20px;
+}
+.button { 
+    margin-left: 20px;
+    display: inline-block;
+	border-width: 0px; 
+	border-radius: 3px; 
+	background:black;
+	cursor: pointer; 
+	outline: none; 
+	font-family: Microsoft YaHei; 
+	color: white; 
+	font-size: 17px; 
+}
+.button:hover { 
+	background: black;
+}
