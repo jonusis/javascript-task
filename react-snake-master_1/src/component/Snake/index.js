@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import './index.sass';
+import './index.scss';
+import Header from '../Header';
 
-const size = { row: 30, col: 30 }
+const size = { row: 18, col: 35 }
 var direction = { down: 1, up: 2, left: 3, right: 4 };
 var red = <div className="red"></div>;
 var green = <div className="green"></div>;
@@ -12,19 +13,24 @@ export default class Index extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            list: [
+              {r: 20, g: 80, b: 20},
+              {r: 40, g: 20, b: 40},
+              {r: 20, g: 120, b: 40}
+            ],
+            checked:false,
             snake: [{ x: 1, y: 1 }],
             food: [{ x: 1, y: 4 , color:'red'},{ x: 3, y: 3 , color:'green'},{ x: 10,y: 20 , color:'blue'}],
             dir: direction.right,
-            redblock:0,
-            blueblock:0,
-            greenblock:0,
-            redRequest:1,
-            blueRequest:1,
-            greenRequest:1,
+            redblock: 0,
+            blueblock: 0,
+            greenblock: 0,
+            redRequest: 1,
+            blueRequest: 1,
+            greenRequest: 1,//
             level:1,
             interval: '', //暂停和开始自动移动
-            status: 'start', // start or pause
-            score: 0,
+            status: 'start' // start or pause
         }
     }
 
@@ -53,22 +59,23 @@ export default class Index extends Component {
 
 
     render() {
-        const { score, status,redblock,blueblock,greenblock } = this.state;
+        const { level,status,redRequest,blueRequest,greenRequest,checked} = this.state;
         return <div className="snakeBackground">
-            <div className="snakeTitle">
-                贪吃蛇
-                <div className="snakeScore">score: {score}{redblock}{greenblock}{blueblock}</div>
-            </div>
+            <Header 
+              targetR={redRequest * 20}
+              targetG={greenRequest * 20}
+              targetB={blueRequest * 20}
+              level={level}
+              status={status}
+              pause={this.pause.bind(this)}
+              handleRestart={this.handleRestart.bind(this)}
+              handleStart={this.handleStart.bind(this)}
+            />
             <div className="snakeBody">
                 <table border="1">
                     {this.renderBackground()}
                 </table>
-                <div className="buttonGroup">
-                    <button onClick={status === 'pause' ? this.handleStart : this.pause}>
-                        {status === 'pause' ? 'start' : 'pause'}
-                    </button>
-                    <button onClick={this.handleRestart}>restart</button>
-                </div>
+                <img src={require('../../images/move_snake.png')} className={checked? 'snake_move':'none'} alt=''/>
             </div>
         </div>
     }
@@ -121,7 +128,7 @@ export default class Index extends Component {
     }
     changecolor(){
         let e = document.getElementsByClassName('black');
-        console.log(e);
+        //console.log(e);
         let {redblock,blueblock,greenblock} = this.state;
         let r = redblock*20;
         let g = greenblock*20;
@@ -140,7 +147,7 @@ export default class Index extends Component {
     }
 
     move = (dir) => {
-        const { snake, food } = this.state;
+        const { snake,food} = this.state;
         let first = { x: snake[0].x, y: snake[0].y }
         let last = {};
         // move
@@ -160,7 +167,22 @@ export default class Index extends Component {
             this.handleRestart();
             return;
         }
-
+        //是否结束
+        let {list,redblock,greenblock,blueblock,redRequest,greenRequest,blueRequest,level} = this.state;
+        if((redblock >= redRequest)&&(greenblock >= greenRequest)&&(blueblock >= blueRequest)){
+            let rgb = {};
+            alert("恭喜你，你赢了！");
+            rgb = list[level];
+            level += 1;
+            this.resetZero();//?
+            this.setState({
+                level: level,
+                readRequest: rgb.r / 20,
+                greenRequest: rgb.g / 20,
+                blueRequest: rgb.b / 20,
+              });
+            return;
+        }
         let eat = false;
         // 吃到食物
     for(let obj in food){
@@ -200,29 +222,40 @@ export default class Index extends Component {
             this.timer();  // 重新开启定时器
         }
     }
-    //赢得本次胜利
-    GameNext = () =>{
-        let {redblock,greenblock,blueblock,redRequest,greenRequest,blueRequest,level} = this.state;
-        if((redblock >= redRequest + 2)||(greenblock >= greenRequest + 2)||(blueblock >= blueRequest + 2)){
-            this.handleRestart();
-        }else if((redblock >= redRequest)&&(greenblock >= greenRequest)&&(blueblock >= blueRequest)){
-            alert("恭喜你，你赢了！");
-            level += 1;
-            this.setState({level});
-        }
+    //将当前值清零
+    resetZero = () =>{
+      document.getElementById("red-loading").style.width = "0px";
+      document.getElementById("green-loading").style.width = "0px";
+      document.getElementById("blue-loading").style.width = "0px";
+      let i = this.state.interval;
+      window.clearInterval(i);
+      this.setState({
+        redblock:0,
+        blueblock:0,
+        greenblock:0,
+        dir: direction.right,
+        snake: [{ x: 1, y: 1 }],
+        interval: '', //暂停和开始自动移动
+        status: 'start', // start or pause
+        food: [{ x: 1, y: 4 , color:'red'},{ x: 3, y: 3 , color:'green'},{ x: 10,y: 20 , color:'blue'}]
+      })
+      this.timer()
     }
     // 重新开始
     handleRestart = () => {
         alert("对不起，失败了，重新来过吧！");
+        //失败的弹窗!!!
         let i = this.state.interval;
         window.clearInterval(i);
+        document.getElementById("red-loading").style.width = "0px";
+        document.getElementById("green-loading").style.width = "0px";
+        document.getElementById("blue-loading").style.width = "0px";
         this.setState({
             snake: [{ x: 1, y: 1 }],
             food: [{ x: 1, y: 4 , color:'red'},{ x: 3, y: 3 , color:'green'},{ x: 10,y: 20 , color:'blue'}],
             dir: direction.right,
             interval: '', //暂停和开始自动移动
             status: 'start', // start or pause
-            score: 0,
             redblock:0,
             blueblock:0,
             greenblock:0,
@@ -239,22 +272,76 @@ export default class Index extends Component {
             y = parseInt(Math.random() * size.col);
         }
         //每次显示新的食物意味着吃了上一个食物，加1分
-        let {redblock,greenblock,blueblock} = this.state;
-        let score = this.state.score + 1;
+        let {redblock,greenblock,blueblock,redRequest,greenRequest,blueRequest} = this.state;
         let food = this.state.food;
         let color = food[index].color;
+        let len;
+        let that = this;
         food.splice(index, 1);
+        //吃了食物之后判断当前状态，判断是否要闪烁特效/进度条清零
         if(color === 'red'){
             redblock += 1;
+            if(redblock > redRequest) {
+              if((redblock - redRequest) === 3)  {
+                redblock = 0;
+                len = 0;
+                this.setState({redblock,checked:true});
+                this.pause();
+                setTimeout(function () {
+                    that.handleStart();
+                    this.setState({checked:false});
+                }.bind(this),5000);
+                //进度条清零，关闭闪烁特效！！！
+              }else {
+                len = 94; 
+                 //此处吃多了，但是还没死，应触发闪烁特效提醒玩家！！！
+              } 
+            }else { len = redblock / redRequest * 94; }
+            document.getElementById("red-loading").style.width = [len+"px"].join("");
             this.setState({redblock});
         }else if(color === 'green'){
             greenblock += 1;
+            if(greenblock > greenRequest) {
+              if((greenblock - greenRequest) === 3)  {
+                greenblock = 0;
+                len = 0;
+                this.setState({greenblock,checked:true});
+                this.pause();
+                setTimeout(function () {
+                    that.handleStart();
+                    this.setState({checked:false});
+                }.bind(this),5000);
+                //关闭闪烁特效！！！
+               }else { 
+                len = 94; 
+                //此处吃多了，应触发闪烁特效提醒玩家！！！
+               } 
+            }else { len = greenblock / greenRequest * 94; }
+            console.log(len)//
+            document.getElementById("green-loading").style.width = [len+"px"].join("");
             this.setState({greenblock});
         }else if(color === 'blue'){
             blueblock += 1;
+            if(blueblock > blueRequest) {
+              if((blueblock - blueRequest) === 3)  {
+                blueblock = 0;
+                len = 0;
+                this.setState({blueblock,checked:true});
+                this.pause();
+                setTimeout(function () {
+                    that.handleStart();
+                    this.setState({checked:false});
+                }.bind(this),5000);
+                //关闭闪烁特效！！！
+              }else { 
+                len = 94; 
+                //此处吃多了，但是还没死，应触发闪烁特效提醒玩家
+              } 
+            }else { len = greenblock / greenRequest * 94; }
+            console.log(len)//
+            document.getElementById("blue-loading").style.width = [len+"px"].join("");
             this.setState({blueblock});
         }
-        this.GameNext();
-        this.setState({ food: [...food,{ x: x, y: y ,color:color}], score })
+        this.setState({ food: [...food,{ x: x, y: y ,color:color}]})
     }
 }

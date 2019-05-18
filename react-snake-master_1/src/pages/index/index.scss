@@ -1,0 +1,39 @@
+.back1 {
+  margin: 0 auto;
+  width: 1000px;
+  height: 750px;
+  background: #A5E7C6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+  .word {
+    margin-top: 40px;
+  }
+    .logo {
+      width: 684px;
+      height: 375px;
+    }
+
+  .button_1 {
+    margin: 0;
+    padding: 0;
+    border: 1px solid transparent;
+    outline: none;
+    background: #A5E7C6;
+  }
+
+  .start {
+    width: 380px;
+    height: 95px;
+  }
+
+  .small_tab {
+    margin-bottom: 54px;
+  }
+
+  .detail_1 {
+    width: 147px;
+    height: 21px;
+  }
