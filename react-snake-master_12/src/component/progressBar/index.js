@@ -11,9 +11,8 @@ class Header extends React.Component{
     }
   }
 
-
   render() {
-    const { color,id } = this.props;
+    const { isshine,color,id } = this.props;
     return(
       <div className="progress-box">
         <div 
@@ -23,7 +22,7 @@ class Header extends React.Component{
         <div className="inline progress-loading">
           <div 
             id={id}
-            className="progress-loading-in"
+            className={isshine?"progress-loading-in-twinkling":"progress-loading-in"}
             style={{background: color}}
          />
         </div>

@@ -13,7 +13,7 @@ class Header extends React.Component{
 
 
   render() {
-    const { level,status,handleStart,handleRestart,pause,redblock,greenblock,blueblock,targetR,targetG,targetB} = this.props;
+    const { isshine,level,status,handleStart,handleRestart,pause,redblock,greenblock,blueblock,targetR,targetG,targetB} = this.props;
     return(
       <div className="game-header">
         <div className="header-level inline title-font">关卡：{level}</div>
@@ -25,18 +25,21 @@ class Header extends React.Component{
         </div>
         <div className="inline header-bar">
           <ProgressBar 
+            isshine={isshine[0]}
             color="rgba(255, 0, 0, 1)"
             status={redblock}
             target={targetR}
             id="red-loading"
           />
           <ProgressBar 
+            isshine={isshine[1]}
             color="rgba(128, 194, 105, 1)"
             status={greenblock}
             target={targetG}
             id="green-loading"
           />
           <ProgressBar 
+            isshine={isshine[2]}
             color="rgba(68, 138, 202, 1)"
             status={blueblock}
             target={targetB}

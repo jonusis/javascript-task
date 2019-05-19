@@ -50,7 +50,8 @@ export default class Index extends Component {
             interval: '', //暂停和开始自动移动
             status: 'start', // start or pause
             isToast: false,
-            isWin: false
+            isWin: false,
+            isshine: [false,false,false]
         }
     }
 
@@ -79,7 +80,7 @@ export default class Index extends Component {
 
 
     render() {
-        const { isToast,isWin,level,status,redRequest,blueRequest,greenRequest,checked} = this.state;
+        const { isshine,isToast,isWin,level,status,redRequest,blueRequest,greenRequest,checked} = this.state;
         return <div className="background">
         <div className="snakeBackground">
             <Header 
@@ -91,6 +92,7 @@ export default class Index extends Component {
               pause={this.pause.bind(this)}
               handleRestart={this.handleRestart.bind(this)}
               handleStart={this.handleStart.bind(this)}
+              isshine={isshine}
             />
             <div className="snakeBody">
                 <table border="1">
@@ -98,14 +100,14 @@ export default class Index extends Component {
                 </table>
                 <img src={require('../../images/move_snake.png')} className={checked? 'snake_move':'none'} alt=''/>
             </div>
-            {isToast ? 
+        </div>
+        {isToast ? 
               <Toast
                 src={isWin ?"winsnake.png" : "losesnake.png"}
                 toastRemove={this.toastRemove.bind(this)}
               /> : 
               ""
-            }
-        </div>
+        }
     </div>
     }
 
@@ -312,6 +314,7 @@ export default class Index extends Component {
             redblock:0,
             blueblock:0,
             greenblock:0,
+            isshine:[false,false,false]
         })
         this.timer()
     }
@@ -325,7 +328,7 @@ export default class Index extends Component {
             y = parseInt(Math.random() * size.col);
         }
         //每次显示新的食物意味着吃了上一个食物，加1分
-        let {redblock,greenblock,blueblock,redRequest,greenRequest,blueRequest} = this.state;
+        let {isshine,redblock,greenblock,blueblock,redRequest,greenRequest,blueRequest} = this.state;
         let food = this.state.food;
         let color = food[index].color;
         let len;
@@ -338,7 +341,8 @@ export default class Index extends Component {
               if((redblock - redRequest) === 3)  {
                 redblock = 0;
                 len = 0;
-                this.setState({redblock,checked:true});
+                isshine[0] = false;
+                this.setState({redblock,checked:true,isshine});
                 this.pause();
                 setTimeout(function () {
                     that.handleStart();
@@ -347,6 +351,8 @@ export default class Index extends Component {
                 //进度条清零，关闭闪烁特效！！！
               }else {
                 len = 94; 
+                isshine[0] = true;
+                this.setState({isshine});
                  //此处吃多了，但是还没死，应触发闪烁特效提醒玩家！！！
               } 
             }else { len = redblock / redRequest * 94; }
@@ -358,7 +364,8 @@ export default class Index extends Component {
               if((greenblock - greenRequest) === 3)  {
                 greenblock = 0;
                 len = 0;
-                this.setState({greenblock,checked:true});
+                isshine[1] = false;
+                this.setState({greenblock,checked:true,isshine});
                 this.pause();
                 setTimeout(function () {
                     that.handleStart();
@@ -367,6 +374,8 @@ export default class Index extends Component {
                 //关闭闪烁特效！！！
                }else { 
                 len = 94; 
+                isshine[1] = true;
+                this.setState({isshine});
                 //此处吃多了，应触发闪烁特效提醒玩家！！！
                } 
             }else { len = greenblock / greenRequest * 94; }
@@ -380,8 +389,9 @@ export default class Index extends Component {
               if((blueblock - blueRequest) === 3)  {
                 blueblock = 0;
                 len = 0;
+                isshine[2] = false;
                 console.log("3===now:"+blueblock+"target"+blueRequest);//
-                this.setState({blueblock,checked:true});
+                this.setState({blueblock,checked:true,isshine});
                 this.pause();
                 setTimeout(function () {
                     that.handleStart();
@@ -391,6 +401,8 @@ export default class Index extends Component {
               }else { 
                 console.log("2===now:"+blueblock+"target"+blueRequest);//
                 len = 94; 
+                isshine[2] = true;
+                this.setState({isshine});
                 //此处吃多了，但是还没死，应触发闪烁特效提醒玩家
               } 
             }else { len = blueblock / blueRequest * 94;console.log("normal===now:"+ (blueblock / blueRequest)); }
