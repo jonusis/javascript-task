@@ -60,7 +60,8 @@ export default class Index extends Component {
 
     render() {
         const { level,status,redRequest,blueRequest,greenRequest,checked} = this.state;
-        return <div className="snakeBackground">
+        return <div className="background">
+        <div className="snakeBackground">
             <Header 
               targetR={redRequest * 20}
               targetG={greenRequest * 20}
@@ -77,6 +78,7 @@ export default class Index extends Component {
                 </table>
                 <img src={require('../../images/move_snake.png')} className={checked? 'snake_move':'none'} alt=''/>
             </div>
+        </div>
         </div>
     }
 
