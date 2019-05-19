@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './index.scss';
 import Header from '../Header';
+import Toast from '../Toast';
 
 const size = { row: 18, col: 35 }
 var direction = { down: 1, up: 2, left: 3, right: 4 };
@@ -14,9 +15,26 @@ export default class Index extends Component {
         super(props);
         this.state = {
             list: [
-              {r: 20, g: 80, b: 20},
-              {r: 40, g: 20, b: 40},
-              {r: 20, g: 120, b: 40}
+                {r: 20, g: 80, b: 20},
+                {r: 40, g: 20, b: 100},
+                {r: 20, g: 120, b: 40},
+                {r: 120, g: 20, b: 60},
+                {r: 120, g: 20, b: 100},
+                {r: 240, g: 40, b: 20},
+                {r: 100, g: 220, b: 20},
+                {r: 20, g: 140, b: 200},
+                {r: 240, g: 80, b: 60},
+                {r: 40, g: 220, b: 160},
+                {r: 240, g: 140, b: 60},
+                {r: 160, g: 60, b: 240},
+                {r: 240, g: 200, b: 40},
+                {r: 100, g: 160, b: 240},
+                {r: 180, g: 240, b: 80},
+                {r: 100, g: 180, b: 240},
+                {r: 200, g: 100, b: 220},
+                {r: 100, g: 240, b: 200},
+                {r: 240, g: 240, b: 200},
+                {r: 240, g: 200, b: 220}
             ],
             checked:false,
             snake: [{ x: 1, y: 1 }],
@@ -30,7 +48,9 @@ export default class Index extends Component {
             greenRequest: 1,//
             level:1,
             interval: '', //暂停和开始自动移动
-            status: 'start' // start or pause
+            status: 'start', // start or pause
+            isToast: false,
+            isWin: false
         }
     }
 
@@ -59,7 +79,7 @@ export default class Index extends Component {
 
 
     render() {
-        const { level,status,redRequest,blueRequest,greenRequest,checked} = this.state;
+        const { isToast,isWin,level,status,redRequest,blueRequest,greenRequest,checked} = this.state;
         return <div className="background">
         <div className="snakeBackground">
             <Header 
@@ -78,8 +98,23 @@ export default class Index extends Component {
                 </table>
                 <img src={require('../../images/move_snake.png')} className={checked? 'snake_move':'none'} alt=''/>
             </div>
+            {isToast ? 
+              <Toast
+                src={isWin ?"winsnake.png" : "losesnake.png"}
+                toastRemove={this.toastRemove.bind(this)}
+              /> : 
+              ""
+            }
         </div>
-        </div>
+    </div>
+    }
+
+    //移除toast
+    toastRemove() {
+      this.setState({
+        isToast: false
+      })
+      this.handleRestart();
     }
 
     renderBackground() {
@@ -166,23 +201,23 @@ export default class Index extends Component {
         // 撞到自己
         let _snake = snake.filter(item => item.x === first.x && item.y === first.y)
         if (first.y > size.col - 1 || first.y < 0 || first.x < 0 || first.x > size.row - 1 || _snake.length > 0) {
-            this.handleRestart();
+            this.loseToast();//失败弹窗
             return;
         }
         //是否结束
         let {list,redblock,greenblock,blueblock,redRequest,greenRequest,blueRequest,level} = this.state;
         if((redblock >= redRequest)&&(greenblock >= greenRequest)&&(blueblock >= blueRequest)){
             let rgb = {};
-            alert("恭喜你，你赢了！");
             rgb = list[level];
             level += 1;
             this.resetZero();//?
             this.setState({
-                level: level,
-                readRequest: rgb.r / 20,
-                greenRequest: rgb.g / 20,
-                blueRequest: rgb.b / 20,
-              });
+              level: level,
+              readRequest: rgb.r / 20,
+              greenRequest: rgb.g / 20,
+              blueRequest: rgb.b / 20,
+            });
+            this.winToast();
             return;
         }
         let eat = false;
@@ -243,10 +278,26 @@ export default class Index extends Component {
       })
       this.timer()
     }
+
+
+    //winToast胜利弹窗
+    winToast() {
+      this.pause();
+      this.setState({
+        isToast: true,
+        isWin: true
+      })
+    }
+    //失败弹窗
+    loseToast() {
+        this.pause();
+        this.setState({
+          isToast: true
+        })
+    }
+
     // 重新开始
     handleRestart = () => {
-        alert("对不起，失败了，重新来过吧！");
-        //失败的弹窗!!!
         let i = this.state.interval;
         window.clearInterval(i);
         document.getElementById("red-loading").style.width = "0px";
@@ -324,10 +375,12 @@ export default class Index extends Component {
             this.setState({greenblock});
         }else if(color === 'blue'){
             blueblock += 1;
+            console.log("now:"+blueblock+"target"+blueRequest);//
             if(blueblock > blueRequest) {
               if((blueblock - blueRequest) === 3)  {
                 blueblock = 0;
                 len = 0;
+                console.log("3===now:"+blueblock+"target"+blueRequest);//
                 this.setState({blueblock,checked:true});
                 this.pause();
                 setTimeout(function () {
@@ -336,11 +389,12 @@ export default class Index extends Component {
                 }.bind(this),5000);
                 //关闭闪烁特效！！！
               }else { 
+                console.log("2===now:"+blueblock+"target"+blueRequest);//
                 len = 94; 
                 //此处吃多了，但是还没死，应触发闪烁特效提醒玩家
               } 
-            }else { len = greenblock / greenRequest * 94; }
-            console.log(len)//
+            }else { len = blueblock / blueRequest * 94;console.log("normal===now:"+ (blueblock / blueRequest)); }
+            console.log("len"+len)//
             document.getElementById("blue-loading").style.width = [len+"px"].join("");
             this.setState({blueblock});
         }
